@@ -1,0 +1,6 @@
+DEVICE="eth0"
+BOOTPROTO="dhcp"
+NM_CONTROLLED="yes"
+ONBOOT="yes"
+TYPE="Ethernet"
+UUID="2f445c67-ada3-4fc8-8da5-0583fe0b5beb"
