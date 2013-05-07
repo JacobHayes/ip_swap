@@ -57,6 +57,31 @@ function STATIC
 
    cp ifcfg-eth0.template $ifcfg_file
 
+   new_gateway=`cat $ifcfg_file | grep 'GATEWAY='`
+   status=`echo $?`
+
+   if (( $status == 0 ))
+   then
+      echo "New: $new_gateway"
+   elif (( $status == 1 ))
+   then
+      echo "No gateway specified..."
+      printf "Enter a new gateway or 'N' for none: "
+      read new_gateway
+      new_gateway=${new_gateway:-N}
+
+      if [[ $new_gateway == "N" || $new_gateway == "n" ]]
+      then
+         echo "Ignoring gateway"
+      else 
+         echo "New gateway: $new_gateway"
+         echo "GATEWAY=\"${new_gateway}\"" >> $ifcfg_file
+      fi
+   fi
+
+   echo ""
+   echo ""
+
    new_ip=`cat $ifcfg_file | grep 'IPADDR='`
    status=`echo $?`
 
@@ -92,7 +117,7 @@ function STATIC
       echo "New: $new_netmask"
    elif (( $status == 1 ))
    then
-      echo "No Netmask specified..."
+      echo "No netmask specified..."
       printf "Enter a new netmask or 'D' for 255.255.255.0: "
       read new_netmask
       new_netmask=${new_netmask:-D}
@@ -102,7 +127,7 @@ function STATIC
          new_netmask="255.255.255.0"
       fi
 
-      echo "New Netmask: $new_netmask"
+      echo "New netmask: $new_netmask"
       echo "NETMASK=\"${new_netmask}\"" >> $ifcfg_file
    fi
 }

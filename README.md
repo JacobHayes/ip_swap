@@ -12,5 +12,5 @@ OPTIONS:
        - This is also called when used without flags
    -s
       Change to a static IP...
-       - Unless specified in ifcfg_eth0.template, you will be prompted for a new IPADDR and NETMASK
+       - Unless specified in ifcfg_eth0.template, you will be prompted for a new GATEWAY, IPADDR, and NETMASK
 ```
