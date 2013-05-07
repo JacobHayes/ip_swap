@@ -131,12 +131,16 @@ OPTIONS:
 
 ifcfg_file="/etc/sysconfig/network-scripts/ifcfg-eth0"
 
-while getopts ":dps" opt
+while getopts ":dhps" opt
 do
    case $opt in
       d)
          DHCP
          flag="d"
+         ;;
+      h)
+         echo ""
+         USAGE
          ;;
       p)
          PROMPT
