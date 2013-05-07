@@ -1,8 +1,8 @@
 function CHECK_CONNECTION
 {
-   ping -c 1 -t 60  www.google.com &> /dev/null
-
    echo ""
+
+   ping -c 1 -t 60  www.google.com &> /dev/null
 
    if (( `echo $?` == 0 ))
    then
