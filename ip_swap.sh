@@ -155,6 +155,7 @@ OPTIONS:
 }
 
 ifcfg_file="/etc/sysconfig/network-scripts/ifcfg-eth0"
+cp $ifcfg_file ${ifcfg_file}.bkup
 
 while getopts ":dhps" opt
 do
