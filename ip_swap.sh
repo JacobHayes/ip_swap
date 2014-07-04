@@ -2,7 +2,7 @@ function CHECK_CONNECTION
 {
    echo ""
 
-   ping -c 1 -t 60  www.google.com &> /dev/null
+   ping -c 1 -t 60  8.8.8.8 &> /dev/null
 
    if (( `echo $?` == 0 ))
    then
@@ -14,8 +14,6 @@ function CHECK_CONNECTION
 
 function DHCP
 {
-   cp ifcfg-eth0.template $ifcfg_file
-
    echo "BOOTPROTO=\"dhcp\"" >> $ifcfg_file
 
    echo ""
@@ -55,9 +53,7 @@ function STATIC
 {
    echo ""
 
-   cp ifcfg-eth0.template $ifcfg_file
-
-   new_gateway=`cat $ifcfg_file | grep 'GATEWAY='`
+   new_gateway=`grep 'GATEWAY=' $ifcfg_file `
    status=`echo $?`
 
    if (( $status == 0 ))
@@ -73,7 +69,7 @@ function STATIC
       if [[ $new_gateway == "N" || $new_gateway == "n" ]]
       then
          echo "Ignoring gateway"
-      else 
+      else
          echo "New gateway: $new_gateway"
          echo "GATEWAY=\"${new_gateway}\"" >> $ifcfg_file
       fi
@@ -82,7 +78,7 @@ function STATIC
    echo ""
    echo ""
 
-   new_ip=`cat $ifcfg_file | grep 'IPADDR='`
+   new_ip=`grep 'IPADDR=' $ifcfg_file`
    status=`echo $?`
 
    if (( $status == 0 ))
@@ -91,25 +87,37 @@ function STATIC
    elif (( $status == 1 ))
    then
       echo "No IP address specified..."
-      printf "Enter a new IP: "
-      read new_ip
 
-      while [[ $new_ip == "" ]]
+      while [[ $run != "y" ]]
       do
-         echo ""
-         echo "No new IP specified."
          printf "Enter a new IP: "
          read new_ip
+
+         ping -c 1 -t 1 $new_ip > /dev/null
+         ping_status=$?
+
+         if [[ $new_ip != "" ]]
+         then
+            if (( $ping_status == 2 ))
+            then
+               run="y"
+            elif (( $ping_status == 0 ))
+            then
+               echo "IP address already in use..."
+            fi
+         else
+            echo "IP missing..."
+         fi
       done
 
       echo "New IP address: $new_ip"
-      echo "IPADDR=\"${new_ip}\"" >> $ifcfg_file
+      echo "IPADDR=\"$new_ip\"" >> $ifcfg_file
    fi
 
    echo ""
    echo ""
 
-   new_netmask=`cat $ifcfg_file | grep 'NETMASK='`
+   new_netmask=`grep 'NETMASK=' $ifcfg_file`
    status=`echo $?`
 
    if (( $status == 0 ))
@@ -139,7 +147,7 @@ function USAGE
 SCRIPT USAGE
 ############
 
-Script to swap between DHCP and static IP addresses based on the templates provided
+Script to swap between DHCP and static IP addresses based on the template provided.
 
 OPTIONS:
    -d
@@ -154,8 +162,15 @@ OPTIONS:
    exit 1
 }
 
+if [[ `whoami` != "root" ]]
+then
+   echo "Need to be root user or called with 'sudo ${0}'"
+   exit 1
+fi
+
 ifcfg_file="/etc/sysconfig/network-scripts/ifcfg-eth0"
-cp $ifcfg_file ${ifcfg_file}.bkup
+mv $ifcfg_file ${ifcfg_file}.bkup
+cp ifcfg.templ $ifcfg_file
 
 while getopts ":dhps" opt
 do
